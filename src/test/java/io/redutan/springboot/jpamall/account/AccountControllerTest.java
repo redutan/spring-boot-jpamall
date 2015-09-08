@@ -18,6 +18,7 @@ import org.springframework.web.context.WebApplicationContext;
 import javax.transaction.Transactional;
 
 import static org.hamcrest.CoreMatchers.is;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
@@ -39,6 +40,9 @@ public class AccountControllerTest {
 	@Autowired
 	ObjectMapper objectMapper;
 
+	@Autowired
+	AccountService service;
+
 	MockMvc mockMvc;
 
 	@Before
@@ -49,14 +53,17 @@ public class AccountControllerTest {
 
 	@Test
 	public void testCreateAccount() throws Exception {
+		// Given
 		AccountDto.Create createDto = new AccountDto.Create();
 		createDto.setUsername("redutan");
 		createDto.setPassword("password");
 
+		// When
 		ResultActions result = mockMvc.perform(post("/accounts")
 				.contentType(MediaType.APPLICATION_JSON)
 				.content(objectMapper.writeValueAsString(createDto)));
 
+		// Then
 		result.andDo(print());
 		result.andExpect(status().isCreated());
 		// "id":1,"username":"redutan","fullName":null,"joined":1441721929478,"updated":1441721929478}
@@ -65,14 +72,17 @@ public class AccountControllerTest {
 
 	@Test
 	public void testCreateAccount_BadRequest() throws Exception {
+		// Given
 		AccountDto.Create createDto = new AccountDto.Create();
 		createDto.setUsername("  ");        // blank
 		createDto.setPassword("1234");      // invalid size (min = 5)
 
+		// When
 		ResultActions result = mockMvc.perform(post("/accounts")
 				.contentType(MediaType.APPLICATION_JSON)
 				.content(objectMapper.writeValueAsString(createDto)));
 
+		// Then
 		result.andDo(print());
 		result.andExpect(status().isBadRequest());
 		result.andExpect(jsonPath("$.code", is("bad.request")));
@@ -80,6 +90,7 @@ public class AccountControllerTest {
 
 	@Test
 	public void testCreateAccount_DuplicatedUsername() throws Exception {
+		// Given
 		AccountDto.Create createDto = new AccountDto.Create();
 		createDto.setUsername("redutan");
 		createDto.setPassword("password");
@@ -91,12 +102,36 @@ public class AccountControllerTest {
 		result.andDo(print());
 		result.andExpect(status().isCreated());
 
+		// When
 		result = mockMvc.perform(post("/accounts")
 				.contentType(MediaType.APPLICATION_JSON)
 				.content(objectMapper.writeValueAsString(createDto)));
 
+		// Then
 		result.andDo(print());
 		result.andExpect(status().isBadRequest());
 		result.andExpect(jsonPath("$.code", is("duplicated.username.exception")));
+	}
+
+	@Test
+	public void testGetAccounts() throws Exception {
+		final String username = "redutan";
+		// Given
+		AccountDto.Create createDto = new AccountDto.Create();
+		createDto.setUsername(username);
+		createDto.setPassword("password");
+		service.createAccount(createDto);
+
+		// When
+		ResultActions result = mockMvc.perform(get("/accounts"));
+
+		// Then
+		/*
+			{"content":[{"id":1,"username":"redutan","fullName":null,"joined":1441725516380,"updated":1441725516380}],"totalPages":1,"totalElements":1,"last":true,"size":20,"number":0,"sort":null,"first":true,"numberOfElements":1}
+		 */
+		result.andDo(print());
+		result.andExpect(status().isOk());
+		result.andExpect(jsonPath("$.content[0].username", is(username)));
+		result.andExpect(jsonPath("$.totalElements", is(1)));
 	}
 }
