@@ -17,8 +17,10 @@ import org.springframework.web.context.WebApplicationContext;
 
 import javax.transaction.Transactional;
 
+import static org.hamcrest.CoreMatchers.is;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 /**
@@ -57,7 +59,44 @@ public class AccountControllerTest {
 
 		result.andDo(print());
 		result.andExpect(status().isCreated());
+		// "id":1,"username":"redutan","fullName":null,"joined":1441721929478,"updated":1441721929478}
+		result.andExpect(jsonPath("$.username", is("redutan")));
+	}
 
-		// TODO test json
+	@Test
+	public void testCreateAccount_BadRequest() throws Exception {
+		AccountDto.Create createDto = new AccountDto.Create();
+		createDto.setUsername("  ");        // blank
+		createDto.setPassword("1234");      // invalid size (min = 5)
+
+		ResultActions result = mockMvc.perform(post("/accounts")
+				.contentType(MediaType.APPLICATION_JSON)
+				.content(objectMapper.writeValueAsString(createDto)));
+
+		result.andDo(print());
+		result.andExpect(status().isBadRequest());
+		result.andExpect(jsonPath("$.code", is("bad.request")));
+	}
+
+	@Test
+	public void testCreateAccount_DuplicatedUsername() throws Exception {
+		AccountDto.Create createDto = new AccountDto.Create();
+		createDto.setUsername("redutan");
+		createDto.setPassword("password");
+
+		ResultActions result = mockMvc.perform(post("/accounts")
+				.contentType(MediaType.APPLICATION_JSON)
+				.content(objectMapper.writeValueAsString(createDto)));
+
+		result.andDo(print());
+		result.andExpect(status().isCreated());
+
+		result = mockMvc.perform(post("/accounts")
+				.contentType(MediaType.APPLICATION_JSON)
+				.content(objectMapper.writeValueAsString(createDto)));
+
+		result.andDo(print());
+		result.andExpect(status().isBadRequest());
+		result.andExpect(jsonPath("$.code", is("duplicated.username.exception")));
 	}
 }

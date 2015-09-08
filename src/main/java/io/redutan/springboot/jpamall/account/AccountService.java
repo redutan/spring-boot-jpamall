@@ -43,6 +43,11 @@ public class AccountService {
 		 */
 
 		// TODO 유효한 username 판단
+		String username = create.getUsername();
+		if (repository.findByUsername(username) != null) {
+			throw new UserDuplicatedException(username);
+		}
+
 		// TODO password 단방향암호화
 
 		Date now = new Date();
