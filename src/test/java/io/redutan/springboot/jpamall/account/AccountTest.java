@@ -19,9 +19,9 @@ public class AccountTest {
 	@Test
 	public void testGetAndSetAll() throws Exception {
 		Account account = new Account();
-		account.setLoginId("redutan");
+		account.setUsername("redutan");
 		account.setPassword("p@ssw0rd");
 
-		assertThat(account.getLoginId(), is("redutan"));
+		assertThat(account.getUsername(), is("redutan"));
 	}
 }

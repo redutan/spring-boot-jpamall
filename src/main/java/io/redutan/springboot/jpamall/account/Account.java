@@ -3,9 +3,8 @@ package io.redutan.springboot.jpamall.account;
 import lombok.Getter;
 import lombok.Setter;
 
-import javax.persistence.Entity;
-import javax.persistence.GeneratedValue;
-import javax.persistence.Id;
+import javax.persistence.*;
+import java.util.Date;
 
 /**
  * @author redutan
@@ -14,11 +13,21 @@ import javax.persistence.Id;
 @Getter @Setter
 public class Account {
 
-	@Id
-	@GeneratedValue
+	@Id @GeneratedValue
 	private Long id;
 
-	private String loginId;
+	private String username;
 
 	private String password;
+
+	private String email;
+
+	private String fullName;
+
+	@Temporal(TemporalType.TIMESTAMP)
+	private Date joined;
+
+	@Temporal(TemporalType.TIMESTAMP)
+	private Date updated;
+
 }

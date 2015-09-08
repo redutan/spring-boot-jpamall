@@ -16,6 +16,7 @@
   <properties>
     <java.version>1.8</java.version>
     <lombok.version>1.16.6</lombok.version>
+    <modelmappermapper.version>0.7.5</modelmappermapper.version>
   </properties>
 
   <parent>
@@ -46,6 +47,12 @@
       <groupId>org.springframework.boot</groupId>
       <artifactId>spring-boot-starter-test</artifactId>
     </dependency>
+    <dependency>
+      <groupId>org.modelmapper</groupId>
+      <artifactId>modelmapper</artifactId>
+      <version>${modelmappermapper.version}</version>
+    </dependency>
+
   </dependencies>
 
   <build>
