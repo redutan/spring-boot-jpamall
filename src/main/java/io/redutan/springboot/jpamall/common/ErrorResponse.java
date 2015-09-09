@@ -1,4 +1,4 @@
-package io.redutan.springboot.common;
+package io.redutan.springboot.jpamall.common;
 
 import lombok.AllArgsConstructor;
 import lombok.Data;
