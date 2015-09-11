@@ -2,7 +2,6 @@ package io.redutan.springboot.jpamall.account;
 
 import lombok.extern.slf4j.Slf4j;
 import org.modelmapper.ModelMapper;
-import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -48,7 +47,7 @@ public class AccountService {
 		String username = create.getUsername();
 		if (repository.findByUsername(username) != null) {
 			log.error("user duplicated exception. {}", username);
-			throw new UserDuplicatedException(username);
+			throw new AccountDuplicatedException(username);
 		}
 
 		// TODO password 단방향암호화
@@ -58,5 +57,20 @@ public class AccountService {
 		account.setUpdated(now);
 
 		return repository.save(account);
+	}
+
+	public Account updateAccount(Long id, AccountDto.Update updateDto) {
+		Account account = getAccount(id);
+		account.setPassword(updateDto.getPassword());
+		account.setFullName(updateDto.getFullName());
+		return repository.save(account);
+	}
+
+	public Account getAccount(Long id) {
+		Account account = repository.findOne(id);
+		if (account == null) {
+			throw new AccountNotFoundException(id);
+		}
+		return account;
 	}
 }

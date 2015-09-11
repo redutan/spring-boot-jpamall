@@ -5,12 +5,12 @@ import lombok.Getter;
 /**
  * @author redutan
  */
-public class UserDuplicatedException extends RuntimeException {
+public class AccountDuplicatedException extends RuntimeException {
 
 	@Getter
 	private String username;
 
-	public UserDuplicatedException(String username) {
+	public AccountDuplicatedException(String username) {
 		this.username = username;
 	}
 }
