@@ -3,6 +3,7 @@ package io.redutan.springboot.jpamall.account;
 import io.redutan.springboot.jpamall.common.ErrorResponse;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.Pageable;
@@ -86,21 +87,31 @@ public class AccountController {
 		return new ResponseEntity(account, OK);
 	}
 
+	@RequestMapping(value = "/accounts/{id}", method = DELETE)
+	@ResponseStatus(NO_CONTENT)
+	public void deleteAccount(@PathVariable Long id) {
+		service.deleteAccount(id);
+//		return new ResponseEntity(NO_CONTENT);
+	}
 
 	@ExceptionHandler(AccountDuplicatedException.class)
 	@ResponseStatus(BAD_REQUEST)
 	public ErrorResponse handleUserDuplicatedException(AccountDuplicatedException e) {
-		ErrorResponse errorResponse = new ErrorResponse("중복된 사용자명입니다. : [" + e.getUsername() + "]",
+		return new ErrorResponse("중복된 사용자명입니다. : [" + e.getUsername() + "]",
 				"duplicated.username.exception");
-		return errorResponse;
 	}
 
 	@ExceptionHandler(AccountNotFoundException.class)
 	@ResponseStatus(BAD_REQUEST)
 	public ErrorResponse handleAccountNotFoundException(AccountNotFoundException e) {
-		ErrorResponse errorResponse = new ErrorResponse("[" + e.getId() + "] 에 해당하는 계정이 없습니다.",
+		return new ErrorResponse("[" + e.getId() + "] 에 해당하는 계정이 없습니다.",
 				"account.not.found.exception");
-		return errorResponse;
+	}
+
+	@ExceptionHandler(EmptyResultDataAccessException.class)
+	@ResponseStatus(BAD_REQUEST)
+	public ErrorResponse handleEmptyResultDataAccessException(EmptyResultDataAccessException e) {
+		return new ErrorResponse(e.getMessage(), "not.found.data.exception");
 	}
 
 	// TODO 비동기방식(람다식) exception 핸들링

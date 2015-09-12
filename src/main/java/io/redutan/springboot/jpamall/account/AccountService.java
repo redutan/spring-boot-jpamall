@@ -73,4 +73,13 @@ public class AccountService {
 		}
 		return account;
 	}
+
+	public void deleteAccount(Long id) {
+		/* TODO
+		repository.delete(Long) : 존재하지 않을 시에는 AccountDuplicatedException 를 발생
+		repository.delete(Account) : ???
+		둘 사이에 차이는 ?
+		 */
+		repository.delete(id);
+	}
 }

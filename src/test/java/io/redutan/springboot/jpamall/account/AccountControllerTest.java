@@ -19,9 +19,9 @@ import javax.transaction.Transactional;
 
 import static io.redutan.springboot.jpamall.account.AccountDto.*;
 import static org.hamcrest.CoreMatchers.is;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.put;
+import static org.hamcrest.CoreMatchers.nullValue;
+import static org.junit.Assert.assertThat;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
@@ -44,6 +44,9 @@ public class AccountControllerTest {
 
 	@Autowired
 	AccountService service;
+
+	@Autowired
+	AccountRepository repository;
 
 	MockMvc mockMvc;
 
@@ -169,5 +172,27 @@ public class AccountControllerTest {
 		result.andExpect(status().isOk());
 		result.andExpect(jsonPath("$.fullName", is("myeongju jung")));
 		result.andExpect(jsonPath("$.password", is("pass")));
+	}
+
+	@Test
+	public void testDeleteAccountNotExist() throws Exception {
+		ResultActions result = mockMvc.perform(delete("/accounts/1"));
+
+		result.andDo(print());
+		result.andExpect(status().isBadRequest());
+	}
+
+	@Test
+	public void testDeleteAccount() throws Exception {
+		Create createDto = accountCreateDto();
+		Account account = service.createAccount(createDto);
+
+		ResultActions result = mockMvc.perform(delete("/accounts/" + account.getId()));
+
+		result.andDo(print());
+		result.andExpect(status().isNoContent());
+
+		Account deleteAfter = repository.findOne(account.getId());
+		assertThat(deleteAfter, is(nullValue()));
 	}
 }
