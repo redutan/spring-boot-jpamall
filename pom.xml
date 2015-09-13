@@ -18,6 +18,7 @@
     <java.version>1.8</java.version>
     <lombok.version>1.16.6</lombok.version>
     <modelmappermapper.version>0.7.5</modelmappermapper.version>
+    <sprint-security.version>4.0.2.RELEASE</sprint-security.version>
   </properties>
 
   <parent>
@@ -35,6 +36,16 @@
       <groupId>org.springframework.boot</groupId>
       <artifactId>spring-boot-starter-data-jpa</artifactId>
     </dependency>
+    <dependency>
+      <groupId>org.springframework.boot</groupId>
+      <artifactId>spring-boot-starter-security</artifactId>
+    </dependency>
+    <dependency>
+      <groupId>org.springframework.security</groupId>
+      <artifactId>spring-security-test</artifactId>
+      <version>${sprint-security.version}</version>
+    </dependency>
+
     <dependency>
       <groupId>com.h2database</groupId>
       <artifactId>h2</artifactId>

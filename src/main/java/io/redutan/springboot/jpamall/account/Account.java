@@ -31,4 +31,5 @@ public class Account {
 	@Temporal(TemporalType.TIMESTAMP)
 	private Date updated;
 
+	private boolean admin;
 }

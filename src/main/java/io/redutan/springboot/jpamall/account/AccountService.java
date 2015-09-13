@@ -3,6 +3,7 @@ package io.redutan.springboot.jpamall.account;
 import lombok.extern.slf4j.Slf4j;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import javax.transaction.Transactional;
@@ -21,6 +22,9 @@ public class AccountService {
 
 	@Autowired
 	private ModelMapper modelMapper;
+
+	@Autowired
+	private PasswordEncoder passwordEncoder;
 
 	public Account createAccount(AccountDto.Create create) {
 
@@ -49,8 +53,7 @@ public class AccountService {
 			log.error("user duplicated exception. {}", username);
 			throw new AccountDuplicatedException(username);
 		}
-
-		// TODO password 단방향암호화
+		account.setPassword(passwordEncoder.encode(account.getPassword()));
 
 		Date now = new Date();
 		account.setJoined(now);
@@ -61,7 +64,7 @@ public class AccountService {
 
 	public Account updateAccount(Long id, AccountDto.Update updateDto) {
 		Account account = getAccount(id);
-		account.setPassword(updateDto.getPassword());
+		account.setPassword(passwordEncoder.encode(updateDto.getPassword()));
 		account.setFullName(updateDto.getFullName());
 		return repository.save(account);
 	}
