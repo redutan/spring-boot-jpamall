@@ -2,11 +2,11 @@ package io.redutan.springboot.jpamall.account;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import io.redutan.springboot.Application;
+import lombok.extern.slf4j.Slf4j;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.boot.test.SpringApplicationConfiguration;
 import org.springframework.http.MediaType;
 import org.springframework.security.web.FilterChainProxy;
@@ -19,7 +19,8 @@ import org.springframework.web.context.WebApplicationContext;
 
 import javax.transaction.Transactional;
 
-import static io.redutan.springboot.jpamall.account.AccountDto.*;
+import static io.redutan.springboot.jpamall.account.AccountDto.Create;
+import static io.redutan.springboot.jpamall.account.AccountDto.Update;
 import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.CoreMatchers.nullValue;
 import static org.junit.Assert.assertThat;
@@ -37,6 +38,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 @SpringApplicationConfiguration(classes = {Application.class})  // 위 설정(주석처리)이 이와같이 더 간결해진다.
 @WebAppConfiguration
 @Transactional
+@Slf4j
 public class AccountControllerTest {
 
 	@Autowired
@@ -71,9 +73,12 @@ public class AccountControllerTest {
 		createDto.setPassword("password");
 
 		// When
+		String content = objectMapper.writeValueAsString(createDto);
+		log.info("content = {}", content);
+
 		ResultActions result = mockMvc.perform(post("/accounts")
 				.contentType(MediaType.APPLICATION_JSON)
-				.content(objectMapper.writeValueAsString(createDto)));
+				.content(content));
 
 		// Then
 		result.andDo(print());
