@@ -20,30 +20,34 @@ public class CodeController {
     @Autowired
     CodeRepository repository;
 
-    @RequestMapping(value = "/codes")
+    @Autowired
+    CodeFactory factory;
+
+    @RequestMapping(value = "/codes", method = RequestMethod.GET)
     public List<Code> codes() {
         return repository.findAll();
     }
 
+    @RequestMapping(value = "/codes/{codeId}", method = RequestMethod.GET)
+
+    public Code code(@PathVariable("codeId") Code code) {
+        return code;
+    }
+
+    @Transactional
     @RequestMapping(value = "/codes", method = RequestMethod.POST)
     @ResponseStatus(HttpStatus.CREATED)
     public Code insert(@Valid @RequestBody CodeDto.Create create) {
-        log.info("create = {}", create);
-        Code code = new Code();
-        BeanUtils.copyProperties(create, code);
-        if (create.getParentCodeId() != null) {
-            Code parent = repository.findOne(create.getParentCodeId());
-            if (parent == null) {
-                throw new RuntimeException("not.found.code");
-            }
-            code.setParentCode(parent);
-        }
+        Code code = factory.getObject(create);
         return repository.save(code);
     }
 
-    @RequestMapping(value = "/codes", method = RequestMethod.PUT)
+    @Transactional
+    @RequestMapping(value = "/codes/{codeId}", method = RequestMethod.PUT)
     @ResponseStatus(HttpStatus.OK)
-    public Code update(Code code) {
+    public Code update(@PathVariable("codeId") Code code,
+                       @Valid @RequestBody CodeDto.Update update) {
+        BeanUtils.copyProperties(update, code);
         return repository.save(code);
     }
 
@@ -51,6 +55,10 @@ public class CodeController {
     @RequestMapping(value = "/codes/{codeId}", method = RequestMethod.DELETE)
     @ResponseStatus(HttpStatus.NO_CONTENT)
     public void remove(@PathVariable("codeId") Code code) {
+        if (code == null) {
+            // 존재하지 않는 코드입니다.
+            throw new RuntimeException("not.exist.code");
+        }
         repository.delete(code);
     }
 }

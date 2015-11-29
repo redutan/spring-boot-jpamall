@@ -5,14 +5,16 @@ import lombok.EqualsAndHashCode;
 import lombok.ToString;
 
 import javax.persistence.*;
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * @author myeongju.jung
  */
 @Entity
 @Data
-@ToString(exclude = {"parentCode"})
-@EqualsAndHashCode(exclude = {"parentCode"})
+@ToString(exclude = {"parentCode", "children"})
+@EqualsAndHashCode(exclude = {"parentCode", "children"})
 public class Code {
     @Id
     @GeneratedValue
@@ -20,8 +22,15 @@ public class Code {
 
     @JoinColumn(name = "PARENT_CODE_ID")
     @ManyToOne(optional = true)
-    private Code parentCode;
+    private Code parent;
 
     private String name;
 
+    @OneToMany(mappedBy = "parent")
+    private List<Code> children = new ArrayList<>();
+
+    public void addChild(Code child) {
+        this.children.add(child);
+        child.setParent(this);
+    }
 }

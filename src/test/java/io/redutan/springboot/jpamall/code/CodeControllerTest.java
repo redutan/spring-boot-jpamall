@@ -13,6 +13,7 @@ import org.springframework.security.web.FilterChainProxy;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 import org.springframework.test.context.web.WebAppConfiguration;
 import org.springframework.test.web.servlet.MockMvc;
+import org.springframework.test.web.servlet.MvcResult;
 import org.springframework.test.web.servlet.ResultActions;
 import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 import org.springframework.web.context.WebApplicationContext;
@@ -20,10 +21,11 @@ import org.springframework.web.context.WebApplicationContext;
 import javax.transaction.Transactional;
 
 import static org.hamcrest.CoreMatchers.is;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
-import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
+import static org.hamcrest.CoreMatchers.nullValue;
+import static org.junit.Assert.assertThat;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
+import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.*;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
 /**
  * @author myeongju.jung
@@ -58,7 +60,40 @@ public class CodeControllerTest {
 
     @Test
     public void testCodes() throws Exception {
+        // Given
+        Code code1 = new Code();
+        code1.setName("코드1");
 
+        Code saveCode1 = repository.save(code1);
+        Long codeId1 = saveCode1.getCodeId();
+
+        // When
+        ResultActions result = mockMvc.perform(get("/codes")
+                .contentType(MediaType.APPLICATION_JSON));
+
+        // Then
+        result.andDo(print());
+        result.andExpect(status().isOk());
+        result.andExpect(jsonPath("$.[0].name", is("코드1")));
+    }
+
+    @Test
+    public void testCode() throws Exception {
+        // Given
+        Code code1 = new Code();
+        code1.setName("코드1");
+
+        Code saveCode1 = repository.save(code1);
+        Long codeId1 = saveCode1.getCodeId();
+
+        // When
+        ResultActions result = mockMvc.perform(get("/codes/{codeId}", codeId1)
+                .contentType(MediaType.APPLICATION_JSON));
+
+        // Then
+        result.andDo(print());
+        result.andExpect(status().isOk());
+        result.andExpect(jsonPath("$.name", is("코드1")));
     }
 
     @Test
@@ -85,11 +120,44 @@ public class CodeControllerTest {
 
     @Test
     public void testUpdate() throws Exception {
+        // Given
+        Code code1 = new Code();
+        code1.setName("코드1");
 
+        Code saveCode1 = repository.save(code1);
+        Long codeId1 = saveCode1.getCodeId();
+
+        CodeDto.Update update1 = new CodeDto.Update();
+        update1.setName("코드2");
+
+        // When
+        ResultActions result = mockMvc.perform(put("/codes/{codeId}", codeId1)
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(objectMapper.writeValueAsString(update1)));
+
+        // Then
+        result.andDo(print());
+        result.andExpect(status().isOk());
+        result.andExpect(jsonPath("$.name", is("코드2")));
     }
 
     @Test
     public void testRemove() throws Exception {
+        // Given
+        Code code1 = new Code();
+        code1.setName("코드1");
 
+        Code saveCode1 = repository.save(code1);
+        Long codeId1 = saveCode1.getCodeId();
+
+        // When
+        ResultActions result = mockMvc.perform(delete("/codes/{codeId}", codeId1)
+                .contentType(MediaType.APPLICATION_JSON));
+        // Then
+        result.andDo(print());
+        result.andExpect(status().isNoContent());
+
+        Code deletedCode = repository.findOne(codeId1);
+        assertThat(deletedCode, is(nullValue()));
     }
 }
