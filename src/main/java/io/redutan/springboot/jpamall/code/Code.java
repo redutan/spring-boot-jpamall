@@ -5,8 +5,6 @@ import lombok.EqualsAndHashCode;
 import lombok.ToString;
 
 import javax.persistence.*;
-import java.util.ArrayList;
-import java.util.List;
 
 /**
  * @author myeongju.jung
@@ -26,11 +24,11 @@ public class Code {
 
     private String name;
 
-    @OneToMany(mappedBy = "parent")
-    private List<Code> children = new ArrayList<>();
-
-    public void addChild(Code child) {
-        this.children.add(child);
-        child.setParent(this);
-    }
+//    @OneToMany(mappedBy = "parent")
+//    private List<Code> children = new ArrayList<>();
+//
+//    public void addChild(Code child) {
+//        this.children.add(child);
+//        child.setParent(this);
+//    }
 }
